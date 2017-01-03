@@ -1,4 +1,4 @@
-# find-desktop
+# find-desktop.el
 
 Quickly switch between multiple desktops.
 
@@ -16,20 +16,18 @@ Inspired by an awesome
 
 * Linux or OS X
 
-This library depends on GNU find for initial desktop list search. You
+This library depends on GNU `find` for initial desktop list search. You
 can get around this requirement if you have
 [`fd-desktops-file`](#fd-desktops-file) file ready in place.
 
-* Tested on Emacs >= 24
-
-It will probably work on earlier versions too.
+* Tested on Emacs >= 24, though it will probably work on earlier versions too
 
 ## Install
 
 Drop the [`find-desktop.el`](find-desktop.el) file somewhere in your
-Emacs lisp path (eg. site-lisp) and add to your .emacs file:
+Emacs lisp path (e.g., `~/.emacs.d/lisp`) and add to your .emacs file:
 ```lisp
-  (require 'find-desktop)
+(require 'find-desktop)
 ```
 
 ## Usage
@@ -41,7 +39,7 @@ run might be slow since `find` will scan your `$HOME` directory for
 `.emacs.desktop` files. Results are then cached to `fd-desktops-file`
 file so subsequent runs are much faster. Recommended binding:
 ```lisp
-  (global-set-key (kbd "C-x C-d") 'find-desktop)
+(global-set-key (kbd "C-x C-d") 'find-desktop)
 ```
 
 Directory name is used for a desktop name. If there are duplicated
@@ -51,7 +49,7 @@ them.
 ### `fd-desktops-file`
 
 Desktop list is saved to `fd-desktops-file` file, which is
-`~/.emacs.desktop.list` by default. To add or remove desktops, edit
+`~/.emacs.desktops.list` by default. To add or remove desktops, edit
 this file. File content is a simple list of directory paths, for
 example:
 ```bash

@@ -1,9 +1,9 @@
 ;;; find-desktop.el --- Find desktop quickly
 
-;; Copyright (c) 2016 Milos Popovic <the.elephant@gmail.com>
+;; Copyright (c) 2015 - 2017 Milos Popovic <the.elephant@gmail.com>
 
 ;; Author: Milos Popovic <the.elephant@gmail.com>
-;; Version: 0.1
+;; Version: 0.2.0
 ;; URL: http://github.com/miloss/find-desktop
 ;; Package-Requires: ((emacs "24.0"))
 ;; Created: 2016-06-20
@@ -35,7 +35,7 @@
 ;; as simple list of paths separated by newline.
 
 (defvar fd-desktops-file
-  "~/.emacs.desktop.list"
+  "~/.emacs.desktops.list"
   "Location of a file to store all desktops.")
 
 ;; If this file is not present, `find' command scans entire $HOME folder
@@ -52,6 +52,10 @@
 ;;  - new selected desktop is loaded
 ;;  - its name is stored to `fd-desktop-name' variable
 ;;  - message is displayed to the user
+;;  - message is displayed to the user
+
+;; If desktop loaded for the first time - a `dired' buffer is opened at
+;; the directory.
 
 ;;; Installation and usage:
 
@@ -73,14 +77,14 @@
   "Return output of GNU 'find' command over a $HOME directory.
 
 Uses cached output from `fd-desktops-file' file, if available."
-  (if (file-exists-p fd-desktops-file)
-      (shell-command-to-string
-       (concat "cat " fd-desktops-file))
-    (shell-command-to-string
-     (concat "find ~ -name '.emacs.desktop'"
-             " | xargs -n1 dirname"
-             " > " fd-desktops-file
-             "; cat " fd-desktops-file))))
+    (if (file-exists-p fd-desktops-file)
+            (shell-command-to-string
+             (concat "cat " fd-desktops-file))
+        (shell-command-to-string
+         (concat "find ~ -name '.emacs.desktop' -print 2>/dev/null"
+                 " | xargs dirname"
+                 " > " fd-desktops-file
+                 "; cat " fd-desktops-file))))
 
 (defun fd-desktops-list ()
   "Return an alist of all desktop directories and their path.
@@ -108,7 +112,8 @@ parent directory they are found in so that they are unique."
 (defun fd-find-desktop ()
   "Prompt with a completing list of all desktops to find one.
 
-Desktop is defined as directory containing an `.emacs.desktop' file."
+Desktop is defined as topmost directory containing `.emacs.desktop' file."
+
   (interactive)
   (let* ((desktops-found (fd-desktops-list))
          (file (if (functionp 'ido-completing-read)
@@ -119,7 +124,7 @@ Desktop is defined as directory containing an `.emacs.desktop' file."
     (cdr (assoc file desktops-found))))
 
 (defun find-desktop ()
-  "Find a desktop and display message about it"
+  "Find desktop and display message about it"
 
   (interactive)
   (let* ((dirpath (fd-find-desktop)))
@@ -127,7 +132,9 @@ Desktop is defined as directory containing an `.emacs.desktop' file."
         (session-save))
     (desktop-change-dir dirpath)
     (setq fd-desktop-name (file-name-nondirectory (directory-file-name dirpath)))
-    (message (concat "Desktop read from " dirpath))))
+    (message (concat "Desktop read from " dirpath))
+    (if (not (file-exists-p (concat dirpath "/.emacs.desktop")))
+        (dired dirpath))))
 
 (provide 'find-desktop)
 ;;; find-desktop.el ends here
